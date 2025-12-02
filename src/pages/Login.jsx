@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
+import api from "../api/apiClient";
+
 export default function Login() {
   const navigate = useNavigate();
 
@@ -10,24 +12,22 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+    try {
+      const response = await api.post("/api/auth/login", { email, password });
+      const data = response.data;
+      console.log("LOGIN RESPONSE:", data);
 
-    const data = await res.json();
-    console.log("LOGIN RESPONSE:", data);
-
-    // ✔ Correct success condition
-    if (data.success === true) {
-      // store token + user
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      navigate("/dashboard");
-    } else {
-      alert(data.error || "Invalid email or password");
+      if (data.success === true) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/dashboard");
+      } else {
+        alert(data.error || "Invalid email or password");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      const message = err?.response?.data?.error || err.message || "Login failed";
+      alert(message);
     }
   };
 
