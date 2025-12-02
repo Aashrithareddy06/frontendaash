@@ -1,5 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useState } from "react";
+import api from "../api/apiClient";
 
 export default function CarBooking() {
   const { state } = useLocation();
@@ -13,26 +14,27 @@ export default function CarBooking() {
 
   const handleConfirmBooking = async () => {
     const user_id = localStorage.getItem("user_id");
-const res = await fetch("http://localhost:5000/api/carBooking/rent", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    user_id,
-    car_id: car.id,
-    city,
-    pickup_date: pickupDate,
-    drop_date: dropDate,
-    price: car.price,
-  }),
-});
 
-const data = await res.json();
-console.log("SERVER JSON:", data);
+    try {
+      const response = await api.post("/api/carBooking/rent", {
+        user_id,
+        car_id: car.id,
+        city,
+        pickup_date: pickupDate,
+        drop_date: dropDate,
+        price: car.price,
+      });
 
-if (data.success) {
-  setSuccess(true);
-}
+      const data = response.data;
+      console.log("SERVER JSON:", data);
 
+      if (data.success) {
+        setSuccess(true);
+      }
+    } catch (err) {
+      console.error("Car booking error:", err);
+      alert("Booking failed. Please try again.");
+    }
   };
 
   return (

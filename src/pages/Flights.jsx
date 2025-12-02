@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/apiClient";
 
 export default function Flights() {
   const [from, setFrom] = useState("");
@@ -47,19 +48,15 @@ export default function Flights() {
   // 🔥 UPDATED: Book flight & send to backend
   const handleBook = async (airline, price) => {
     try {
-      const res = await fetch("http://localhost:5000/api/flights/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          airline,
-          from,
-          to,
-          date,
-          price,
-        }),
+      const response = await api.post("/api/flights/book", {
+        airline,
+        from,
+        to,
+        date,
+        price,
       });
 
-      const data = await res.json();
+      const data = response.data;
 
       if (data.success) {
         navigate("/flight-success", { state: { airline } });
@@ -67,7 +64,7 @@ export default function Flights() {
         alert("Booking failed!");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       alert("Server error");
     }
   };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import api from "../api/apiClient";
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -18,14 +19,8 @@ export default function Contact() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/contact/send", {
-
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
+      const response = await api.post("/api/contact/send", form);
+      const data = response.data;
 
       if (data.success) {
         alert("Thank you! We will approach you soon 😊");
@@ -40,6 +35,7 @@ export default function Contact() {
         alert("Failed to send message");
       }
     } catch (error) {
+      console.error("Contact send error:", error);
       alert("Backend error!");
     }
   };

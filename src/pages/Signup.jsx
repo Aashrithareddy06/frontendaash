@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/apiClient";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -17,19 +18,20 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:5000/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+    try {
+      const response = await api.post("/api/auth/signup", form);
+      const data = response.data;
 
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Signup successful!");
-      navigate("/dashboard");
-    } else {
-      alert(data.error || "Signup failed");
+      if (data.success) {
+        alert("Signup successful!");
+        navigate("/dashboard");
+      } else {
+        alert(data.error || "Signup failed");
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      const message = err?.response?.data?.error || err.message || "Signup failed";
+      alert(message);
     }
   };
 

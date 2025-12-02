@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/apiClient";
 
 export default function Hotels() {
   const [city, setCity] = useState("");
@@ -12,21 +13,22 @@ export default function Hotels() {
   const searchHotels = async () => {
     if (!city) return alert("Enter city!");
 
-    const res = await fetch("http://localhost:5000/api/hotels/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ city }),
-    });
+    try {
+      const response = await api.post("/api/hotels/search", { city });
+      const data = response.data;
 
-    const data = await res.json();
+      if (!data.success) {
+        alert("No hotels found!");
+        setHotels([]);
+        return;
+      }
 
-    if (!data.success) {
-      alert("No hotels found!");
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error("Search hotels error:", err);
+      alert("Search failed. Please try again.");
       setHotels([]);
-      return;
     }
-
-    setHotels(data.hotels);
   };
 
   return (

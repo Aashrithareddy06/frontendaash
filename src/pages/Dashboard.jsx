@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import api from "../api/apiClient";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -33,13 +34,8 @@ export default function Dashboard() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/buses/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to, date })
-      });
-
-      const data = await res.json();
+      const response = await api.post("/api/buses/search", { from, to, date });
+      const data = response.data;
 
       if (!data.success) {
         setResults([]);
@@ -49,6 +45,7 @@ export default function Dashboard() {
 
       setResults(data.buses);
     } catch (err) {
+      console.error("Search buses error:", err);
       alert("Server error. Try again.");
     }
   };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/apiClient";
 
 export default function Booking() {
   const [destination, setDestination] = useState("");
@@ -16,19 +17,19 @@ export default function Booking() {
     const user = JSON.parse(localStorage.getItem("user"));
     const userId = user ? user.id : 0;
 
-    const res = await fetch("http://localhost:5000/api/bookings/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, destination, date }),
-    });
+    try {
+      const response = await api.post("/api/bookings/create", { userId, destination, date });
+      const data = response.data;
 
-    const data = await res.json();
-
-    if (data.success) {
-      navigate("/booking-success", {
-        state: { destination, date },
-      });
-    } else {
+      if (data.success) {
+        navigate("/booking-success", {
+          state: { destination, date },
+        });
+      } else {
+        alert("Booking failed!");
+      }
+    } catch (err) {
+      console.error("Booking create error:", err);
       alert("Booking failed!");
     }
   };

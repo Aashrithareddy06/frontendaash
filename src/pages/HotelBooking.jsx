@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import api from "../api/apiClient";
 
 export default function HotelBooking() {
   const { state } = useLocation();
@@ -14,25 +15,26 @@ export default function HotelBooking() {
   const handleConfirmBooking = async () => {
     const user_id = localStorage.getItem("user_id");
 
-    const res = await fetch("http://localhost:5000/api/hotelBooking/book", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const response = await api.post("/api/hotelBooking/book", {
         user_id,
         hotel_id: hotel.id,
         city,
         checkIn,
         checkOut,
         price: hotel.price,
-      }),
-    });
+      });
 
-    const data = await res.json();
+      const data = response.data;
 
-    if (data.success) {
-      setSuccess(true);
-    } else {
-      alert("Booking failed!");
+      if (data.success) {
+        setSuccess(true);
+      } else {
+        alert("Booking failed!");
+      }
+    } catch (err) {
+      console.error("Hotel booking error:", err);
+      alert("Booking failed. Please try again.");
     }
   };
 
